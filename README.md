@@ -153,6 +153,16 @@ Each API request has a 30-second timeout, including reading its response body. R
 
 The TypeScript client throws `NatureRemoError` with a `code` and an optional HTTP `status`. CLI exit codes and hints are separate from this client error contract. During 0.x, minor releases may change commands or client types; pin the version when depending on their exact shape.
 
+## Agent skill
+
+The [nature-remo-cli skill](skills/nature-remo-cli/SKILL.md) guides command discovery, authentication, target selection, and interpretation of control results. Install it for Codex with GitHub CLI's `gh skill` command:
+
+```sh
+gh skill install Hiro5409/nature-remo-cli nature-remo-cli --agent codex --scope user
+```
+
+Use `--agent claude-code` for Claude Code. The npm package also includes the skill under `skills/nature-remo-cli`.
+
 ## Development
 
 Install and [activate mise](https://mise.jdx.dev/getting-started.html). `mise.toml` pins Node.js, Bun, and Gitleaks and exposes the locally installed Vite+ commands. Keep its Bun version aligned with the Vite+ package-manager declaration in `package.json`:
