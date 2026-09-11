@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify release tag
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF" != "refs/tags/v$version" ]; then
+            echo "Run this workflow from the tag matching package.json."
+            exit 1
+          fi
+          git merge-base --is-ancestor HEAD origin/main
+
+  check:
+    needs: validate
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: npm
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Download tested npm artifact
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317
+        with:
+          name: npm-package
+          path: ${{ runner.temp }}/package
+      - name: Inspect publication state
+        id: state
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release-state.ts "$RUNNER_TEMP"/package/*.tgz
+      - name: Publish tested npm artifact
+        if: steps.state.outputs.npmPublished == 'false'
+        working-directory: ${{ runner.temp }}/package
+        run: npm publish ./*.tgz --provenance --access public
+      - name: Create GitHub Release
+        if: steps.state.outputs.releaseExists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" --verify-tag --generate-notes
+      - name: Attach tested npm artifact
+        if: steps.state.outputs.assetExists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: gh release upload "$TAG" "$RUNNER_TEMP"/package/*.tgz

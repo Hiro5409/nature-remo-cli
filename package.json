@@ -1,0 +1,87 @@
+{
+  "name": "nature-remo-cli",
+  "version": "0.1.0",
+  "description": "A type-safe, agent-friendly CLI for the Nature Remo API.",
+  "keywords": [
+    "cli",
+    "nature-remo",
+    "smart-home",
+    "typescript"
+  ],
+  "homepage": "https://github.com/Hiro5409/nature-remo-cli#readme",
+  "bugs": {
+    "url": "https://github.com/Hiro5409/nature-remo-cli/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hiro5409/nature-remo-cli.git"
+  },
+  "bin": {
+    "nature-remo": "bin/nature-remo"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vp pack --logLevel silent && node dist/main.mjs",
+    "build": "vp pack",
+    "test": "vp test",
+    "check": "vp run check:generated && vp run check:api-coverage && vp check && vp test && knip && vp pack && publint",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "format": "vp fmt",
+    "format:check": "vp fmt --check",
+    "knip": "knip",
+    "check:generated": "vp run generate-types && git diff --exit-code -- src/types && test -z \"$(git ls-files --others --exclude-standard -- src/types)\"",
+    "check:api-coverage": "node scripts/check-api-coverage.ts",
+    "api-schema:update": "node scripts/update-api-schema.ts",
+    "api-schema:check": "node scripts/update-api-schema.ts --check",
+    "generate-types": "openapi-ts --file openapi-ts.config.ts",
+    "prepack": "vp pack",
+    "prepublishOnly": "vp run check",
+    "check:package": "node scripts/check-package.ts"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "@napi-rs/keyring": "2.0.0",
+    "gunshi": "^0.37.1",
+    "string-width": "^8.2.2",
+    "valibot": "^1.4.2"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.0.0-next-20260729142554",
+    "@types/node": "^24.10.0",
+    "knip": "^6.34.0",
+    "msw": "^2.15.0",
+    "publint": "^0.3.24",
+    "typescript": "^7.0.2",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
+    "vite-plus": "0.3.0"
+  },
+  "overrides": {
+    "js-yaml": "5.4.1",
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "bun",
+      "version": "1.4.0",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=24.11.0"
+  }
+}

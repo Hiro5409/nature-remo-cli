@@ -1,0 +1,133 @@
+{
+  "POST /1/appliance_orders": {
+    "status": "excluded",
+    "reason": "Appliance ordering only affects app presentation."
+  },
+  "GET /1/appliances": { "status": "implemented" },
+  "POST /1/appliances": {
+    "status": "excluded",
+    "reason": "Appliance onboarding is safer in the Nature Home app."
+  },
+  "POST /1/appliances/{applianceid}": { "status": "planned" },
+  "POST /1/appliances/{applianceid}/aircon_settings": {
+    "status": "excluded",
+    "reason": "The v2 air conditioner endpoint returns the complete appliance state."
+  },
+  "POST /1/appliances/{applianceid}/delete": {
+    "status": "excluded",
+    "reason": "Destructive appliance management is safer in the Nature Home app."
+  },
+  "POST /1/appliances/{applianceid}/floor_heater_settings": { "status": "planned" },
+  "POST /1/appliances/{applianceid}/light": { "status": "implemented" },
+  "POST /1/appliances/{applianceid}/light_projector": { "status": "planned" },
+  "GET /1/appliances/{applianceid}/power_dist_board": { "status": "planned" },
+  "POST /1/appliances/{applianceid}/power_dist_board/channel": { "status": "planned" },
+  "POST /1/appliances/{applianceid}/sesame_bot/click": { "status": "planned" },
+  "POST /1/appliances/{applianceid}/signal_orders": {
+    "status": "excluded",
+    "reason": "Signal ordering only affects app presentation."
+  },
+  "GET /1/appliances/{applianceid}/signals": {
+    "status": "excluded",
+    "reason": "GET /1/appliances already embeds learned signals; the dedicated endpoint adds a request without new data."
+  },
+  "POST /1/appliances/{applianceid}/signals": {
+    "status": "excluded",
+    "reason": "Infrared signal learning requires an interactive onboarding flow."
+  },
+  "POST /1/appliances/{applianceid}/tv": { "status": "implemented" },
+  "GET /1/ble/appliances/{applianceid}/private_macros": { "status": "planned" },
+  "POST /1/ble/private_macros/{privatemacroid}/exec": { "status": "planned" },
+  "POST /1/detectappliance": {
+    "status": "excluded",
+    "reason": "Air conditioner detection requires an interactive onboarding flow."
+  },
+  "GET /1/devices": { "status": "implemented" },
+  "POST /1/devices/{deviceid}": { "status": "implemented" },
+  "GET /1/devices/{deviceid}/appliances": { "status": "implemented" },
+  "POST /1/devices/{deviceid}/delete": {
+    "status": "excluded",
+    "reason": "Destructive device management is safer in the Nature Home app."
+  },
+  "GET /1/devices/{deviceid}/electricity/time_series/hourly": { "status": "planned" },
+  "POST /1/devices/{deviceid}/humidity_offset": { "status": "implemented" },
+  "POST /1/devices/{deviceid}/temperature_offset": { "status": "implemented" },
+  "GET /1/echonetlite/appliances": { "status": "planned" },
+  "POST /1/echonetlite/appliances/{applianceid}/refresh": { "status": "planned" },
+  "POST /1/echonetlite/appliances/{applianceid}/set": { "status": "planned" },
+  "POST /1/evcc/appliances/{applianceid}/state": { "status": "planned" },
+  "GET /1/homes": { "status": "implemented" },
+  "POST /1/homes": {
+    "status": "excluded",
+    "reason": "Home onboarding is safer in the Nature Home app."
+  },
+  "POST /1/homes/{homeid}": {
+    "status": "excluded",
+    "reason": "Home administration is not part of appliance control."
+  },
+  "POST /1/homes/{homeid}/delete": {
+    "status": "excluded",
+    "reason": "Destructive home management is safer in the Nature Home app."
+  },
+  "GET /1/homes/{homeid}/devices": { "status": "implemented" },
+  "POST /1/homes/{homeid}/invites": {
+    "status": "excluded",
+    "reason": "Membership administration is safer in the Nature Home app."
+  },
+  "POST /1/homes/{homeid}/kick": {
+    "status": "excluded",
+    "reason": "Destructive membership administration is safer in the Nature Home app."
+  },
+  "POST /1/homes/{homeid}/location": {
+    "status": "excluded",
+    "reason": "Location administration is outside appliance control."
+  },
+  "POST /1/homes/{homeid}/location/delete": {
+    "status": "excluded",
+    "reason": "Destructive location administration is outside appliance control."
+  },
+  "POST /1/homes/{homeid}/location_state/update": {
+    "status": "excluded",
+    "reason": "Location state is managed by the Nature Home app."
+  },
+  "POST /1/homes/{homeid}/owner": {
+    "status": "excluded",
+    "reason": "Ownership transfer is safer in the Nature Home app."
+  },
+  "POST /1/homes/{homeid}/part": {
+    "status": "excluded",
+    "reason": "Leaving a home is safer in the Nature Home app."
+  },
+  "POST /1/homes/{homeid}/transfer/{tohomeid}": {
+    "status": "excluded",
+    "reason": "Device transfer is safer in the Nature Home app."
+  },
+  "GET /1/homes/{homeid}/users": { "status": "implemented" },
+  "GET /1/invites/{invitetoken}": {
+    "status": "excluded",
+    "reason": "Membership onboarding is safer in the Nature Home app."
+  },
+  "POST /1/invites/{invitetoken}": {
+    "status": "excluded",
+    "reason": "Membership onboarding is safer in the Nature Home app."
+  },
+  "POST /1/signals/{signalid}": {
+    "status": "excluded",
+    "reason": "Signal metadata management is safer in the Nature Home app."
+  },
+  "POST /1/signals/{signalid}/delete": {
+    "status": "excluded",
+    "reason": "Destructive signal management is safer in the Nature Home app."
+  },
+  "POST /1/signals/{signalid}/send": { "status": "implemented" },
+  "GET /1/users/me": { "status": "implemented" },
+  "POST /1/users/me": {
+    "status": "excluded",
+    "reason": "Profile administration is outside appliance control."
+  },
+  "POST /2/appliances/{applianceid}/aircon_settings": { "status": "implemented" },
+  "POST /2/detectappliance": {
+    "status": "excluded",
+    "reason": "Air conditioner detection requires an interactive onboarding flow."
+  }
+}

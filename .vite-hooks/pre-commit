@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -e
+
+mise exec -- vp staged
+exec mise exec -- gitleaks git --pre-commit --staged --no-banner --redact
