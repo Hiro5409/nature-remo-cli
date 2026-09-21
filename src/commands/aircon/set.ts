@@ -1,37 +1,29 @@
 import { define } from "gunshi";
+import { args, choice, merge } from "gunshi/combinators";
 
 import { formatAirconControl, outputFormat } from "../../output.ts";
-import { applianceArgs, outputArgs } from "../args.ts";
+import { applianceArgs, nonEmptyStringArg, outputArgs } from "../args.ts";
 import { authenticatedNatureRemo } from "../client.ts";
 
 export const airconSetCommand = define({
   name: "set",
   description: "Send settings to an air conditioner and turn it on",
-  args: {
-    ...applianceArgs,
-    temperature: {
-      type: "string",
-      description: "Temperature accepted by the selected mode, such as 26.5",
-    },
-    mode: {
-      type: "enum",
-      choices: ["auto", "blow", "cool", "dry", "warm"],
-      description: "Operation mode",
-    },
-    volume: {
-      type: "string",
-      description: "Air volume, such as auto or 1",
-    },
-    direction: {
-      type: "string",
-      description: "Vertical air direction, such as swing or 1",
-    },
-    "horizontal-direction": {
-      type: "string",
-      description: "Horizontal air direction",
-    },
-    ...outputArgs,
-  } as const,
+  args: merge(
+    applianceArgs,
+    args({
+      temperature: nonEmptyStringArg(
+        "temperature",
+        "Temperature accepted by the selected mode, such as 26.5",
+      ),
+      mode: choice(["auto", "blow", "cool", "dry", "warm"], {
+        description: "Operation mode",
+      }),
+      volume: nonEmptyStringArg("volume", "Air volume, such as auto or 1"),
+      direction: nonEmptyStringArg("direction", "Vertical air direction, such as swing or 1"),
+      "horizontal-direction": nonEmptyStringArg("horizontal-direction", "Horizontal air direction"),
+    }),
+    outputArgs,
+  ),
   run: async (ctx) => {
     const remo = await authenticatedNatureRemo();
     const appliance = await remo.aircons.set({

@@ -1,26 +1,26 @@
 import { define } from "gunshi";
+import { args, merge } from "gunshi/combinators";
 
 import type { SendSignalOptions } from "../../api/signals.ts";
 import { invalidArgument } from "../../errors.ts";
 import { formatAcceptedControl, outputFormat } from "../../output.ts";
-import { applianceArgs, outputArgs } from "../args.ts";
+import { applianceArgs, nonEmptyStringArg, outputArgs } from "../args.ts";
 import { authenticatedNatureRemo } from "../client.ts";
 
 export const signalSendCommand = define({
   name: "send",
   description: "Send a learned infrared signal",
-  args: {
-    ...applianceArgs,
-    "signal-id": {
-      type: "string",
-      description: "Signal ID; sends directly without read access",
-    },
-    "signal-name": {
-      type: "string",
-      description: "Case-insensitive exact signal name; resolved within the appliance",
-    },
-    ...outputArgs,
-  } as const,
+  args: merge(
+    applianceArgs,
+    args({
+      "signal-id": nonEmptyStringArg("signal-id", "Signal ID; sends directly without read access"),
+      "signal-name": nonEmptyStringArg(
+        "signal-name",
+        "Case-insensitive exact signal name; resolved within the appliance",
+      ),
+    }),
+    outputArgs,
+  ),
   run: async (ctx) => {
     const id = ctx.values["signal-id"];
     const name = ctx.values["signal-name"];
