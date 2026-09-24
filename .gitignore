@@ -2,3 +2,4 @@
 /.vite-plus/
 /dist/
 /.agents/
+.vitest/

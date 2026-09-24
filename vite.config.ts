@@ -62,6 +62,9 @@ export default defineConfig({
     },
   },
   pack: {
+    deps: {
+      resolveDepSubpath: false,
+    },
     dts: true,
     entry: ["src/index.ts", "src/main.ts"],
     format: ["esm"],
