@@ -4,7 +4,7 @@ export default defineConfig({
   input: "./openapi/nature-api.json",
   output: {
     path: "src/types/nature",
-    postProcess: ["oxfmt"],
+    postProcess: [{ command: "vp", args: ["fmt", "{{path}}"] }],
   },
   plugins: [
     "@hey-api/typescript",
