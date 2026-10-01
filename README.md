@@ -224,9 +224,14 @@ Dependency Review checks pull requests for vulnerable direct dependencies declar
 
 ## Releases
 
-[tagpr](https://github.com/Songmu/tagpr) keeps a release pull request open for the unreleased changes on `main` and lists the merged pull requests in its description. It proposes the next patch version; edit `version` in `package.json` on that pull request, or label it `tagpr:minor` or `tagpr:major`, to release a different one.
+A maintainer releases from `main`: commit the new `version` in `package.json`, push the commit to `main`, then push the annotated tag for that version:
 
-Merging the release pull request tags the resulting commit on `main` and starts the Release workflow from that tag. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, publishes the tested artifact to npm through trusted publishing, and then creates the GitHub Release with the same artifact attached.
+```sh
+git tag -a v1.2.3 -m v1.2.3
+git push origin v1.2.3
+```
+
+The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, publishes the tested artifact to npm through trusted publishing, and then creates the GitHub Release with the same artifact attached.
 
 To resume an interrupted release, run the workflow again from its tag. It skips the steps that already succeeded and stops if a published artifact differs from the tested one:
 

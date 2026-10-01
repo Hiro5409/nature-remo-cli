@@ -1,6 +1,10 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - "v*"
+  # Resumes an interrupted release from its tag.
   workflow_dispatch:
 
 permissions: {}
@@ -24,10 +28,13 @@ jobs:
         run: |
           version=$(node -p "require('./package.json').version")
           if [ "$GITHUB_REF" != "refs/tags/v$version" ]; then
-            echo "Run this workflow from the tag matching package.json."
+            echo "$GITHUB_REF is not refs/tags/v$version, the tag for the version in package.json."
             exit 1
           fi
-          git merge-base --is-ancestor HEAD origin/main
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "The tagged commit is not on main."
+            exit 1
+          fi
 
   check:
     needs: validate
