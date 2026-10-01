@@ -2,6 +2,9 @@ name: CI
 
 on:
   push:
+    # A tag push is checked by the Release workflow, which calls this one.
+    branches:
+      - "**"
   pull_request:
   workflow_call:
 
