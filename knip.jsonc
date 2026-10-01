@@ -1,5 +1,4 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
   "ignore": ["src/types/nature/**"],
-  "ignoreDependencies": ["vite"],
 }

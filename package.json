@@ -39,7 +39,7 @@
     "dev": "vp pack --logLevel silent && node dist/main.mjs",
     "build": "vp pack",
     "test": "vp test",
-    "check": "vp run check:generated && vp run check:api-coverage && vp check && vp test && knip && vp pack && publint",
+    "check": "vp run check:generated && vp run check:api-coverage && vp check && vp test && knip && vp pack && publint --strict",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
     "format": "vp fmt",
