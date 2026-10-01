@@ -220,7 +220,9 @@ node scripts/check-package.ts "$package_dir"/nature-remo-cli-*.tgz
 
 Dependabot proposes one grouped pull request a week for the Bun dependencies and one for the GitHub Actions, each limited to versions released at least seven days earlier. A maintainer reviews and merges them. Its Bun updater reads `bun.lock` lockfile version 1, so update the lockfile in place instead of regenerating it.
 
-Dependency Review needs the repository's [dependency graph](https://docs.github.com/en/code-security/reference/supply-chain-security/dependency-graph-supported-package-ecosystems) to be enabled. It checks pull requests for vulnerable direct dependencies declared in `package.json` and for changed GitHub Actions. The dependency graph does not read `bun.lock`, so `bun audit` in the CI is the check that covers the locked dependency tree. Dependabot alerts cover only actions referenced by a semantic version, so the SHA-pinned actions receive Dependabot version updates but no alerts.
+Dependency Review needs the repository's [dependency graph](https://docs.github.com/en/code-security/reference/supply-chain-security/dependency-graph-supported-package-ecosystems) to be enabled. It checks pull requests for vulnerable direct dependencies declared in `package.json` and for changed GitHub Actions. The dependency graph does not read `bun.lock`, so `bun audit` in the CI is the check that covers the locked dependency tree.
+
+GitHub Actions pinned to commit SHAs can receive Dependabot version-update PRs, but not vulnerability alerts.
 
 ## Releases
 
