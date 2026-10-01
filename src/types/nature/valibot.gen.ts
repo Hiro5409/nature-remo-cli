@@ -824,11 +824,6 @@ export const vApplianceResponse = v.object({
 export const vApplianceResponses = v.nullable(v.array(vApplianceResponse));
 
 /**
- * ReorderAppliancesParams
- */
-export const vPost1ApplianceOrdersBody = vReorderAppliancesParams;
-
-/**
  * EmptyObject
  */
 export const vPost1ApplianceOrdersResponse = vEmptyObject;
@@ -839,37 +834,14 @@ export const vPost1ApplianceOrdersResponse = vEmptyObject;
 export const vGet1AppliancesResponse = vApplianceResponses;
 
 /**
- * CreateApplianceRequest
- */
-export const vPost1AppliancesBody = vCreateApplianceRequest;
-
-/**
  * ApplianceResponse
  */
 export const vPost1AppliancesResponse = vApplianceResponse;
 
 /**
- * UpdateRequest
- */
-export const vPost1AppliancesByApplianceidBody = vAppliancesUpdateRequest;
-
-export const vPost1AppliancesByApplianceidPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * ApplianceResponse
  */
 export const vPost1AppliancesByApplianceidResponse = vApplianceResponse;
-
-/**
- * AirConParams_
- */
-export const vPost1AppliancesByApplianceidAirconSettingsBody = vAirConParams;
-
-export const vPost1AppliancesByApplianceidAirconSettingsPath = v.object({
-  applianceid: v.string(),
-});
 
 /**
  * AC settings.
@@ -879,25 +851,7 @@ export const vPost1AppliancesByApplianceidAirconSettingsResponse = vAirconSettin
 /**
  * EmptyObject
  */
-export const vPost1AppliancesByApplianceidDeleteBody = vEmptyObject;
-
-export const vPost1AppliancesByApplianceidDeletePath = v.object({
-  applianceid: v.string(),
-});
-
-/**
- * EmptyObject
- */
 export const vPost1AppliancesByApplianceidDeleteResponse = vEmptyObject;
-
-/**
- * AirConParams_
- */
-export const vPost1AppliancesByApplianceidFloorHeaterSettingsBody = vAirConParams;
-
-export const vPost1AppliancesByApplianceidFloorHeaterSettingsPath = v.object({
-  applianceid: v.string(),
-});
 
 /**
  * ApplianceResponse
@@ -905,36 +859,14 @@ export const vPost1AppliancesByApplianceidFloorHeaterSettingsPath = v.object({
 export const vPost1AppliancesByApplianceidFloorHeaterSettingsResponse = vApplianceResponse;
 
 /**
- * Light parameters.
- */
-export const vPost1AppliancesByApplianceidLightBody = vLightParams;
-
-export const vPost1AppliancesByApplianceidLightPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * Light state.
  */
 export const vPost1AppliancesByApplianceidLightResponse = vLightState;
 
 /**
- * LightProjector parameters.
- */
-export const vPost1AppliancesByApplianceidLightProjectorBody = vLightProjectorParams;
-
-export const vPost1AppliancesByApplianceidLightProjectorPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * EmptyObject
  */
 export const vPost1AppliancesByApplianceidLightProjectorResponse = vEmptyObject;
-
-export const vGet1AppliancesByApplianceidPowerDistBoardPath = v.object({
-  applianceid: v.string(),
-});
 
 /**
  * Power distribution board dashboard
@@ -944,20 +876,7 @@ export const vGet1AppliancesByApplianceidPowerDistBoardResponse = vPowerdistboar
 /**
  * Channel
  */
-export const vPost1AppliancesByApplianceidPowerDistBoardChannelBody = vPowerdistboardChannel;
-
-export const vPost1AppliancesByApplianceidPowerDistBoardChannelPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
- * Channel
- */
 export const vPost1AppliancesByApplianceidPowerDistBoardChannelResponse = vPowerdistboardChannel;
-
-export const vPost1AppliancesByApplianceidSesameBotClickPath = v.object({
-  applianceid: v.string(),
-});
 
 /**
  * EmptyObject
@@ -965,22 +884,9 @@ export const vPost1AppliancesByApplianceidSesameBotClickPath = v.object({
 export const vPost1AppliancesByApplianceidSesameBotClickResponse = vEmptyObject;
 
 /**
- * ReorderSignalsParams
- */
-export const vPost1AppliancesByApplianceidSignalOrdersBody = vReorderSignalsParams;
-
-export const vPost1AppliancesByApplianceidSignalOrdersPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * EmptyObject
  */
 export const vPost1AppliancesByApplianceidSignalOrdersResponse = vEmptyObject;
-
-export const vGet1AppliancesByApplianceidSignalsPath = v.object({
-  applianceid: v.string(),
-});
 
 /**
  * Signals
@@ -988,55 +894,24 @@ export const vGet1AppliancesByApplianceidSignalsPath = v.object({
 export const vGet1AppliancesByApplianceidSignalsResponse = vSignals;
 
 /**
- * Signal parameters.
- */
-export const vPost1AppliancesByApplianceidSignalsBody = vCreateSignalParameters;
-
-export const vPost1AppliancesByApplianceidSignalsPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * Signal
  */
 export const vPost1AppliancesByApplianceidSignalsResponse = vSignal;
-
-/**
- * TV parameters.
- */
-export const vPost1AppliancesByApplianceidTvBody = vTvParams;
-
-export const vPost1AppliancesByApplianceidTvPath = v.object({
-  applianceid: v.string(),
-});
 
 /**
  * TV state.
  */
 export const vPost1AppliancesByApplianceidTvResponse = vTvState;
 
-export const vGet1BleAppliancesByApplianceidPrivateMacrosPath = v.object({
-  applianceid: v.string(),
-});
-
 /**
  * BLEPrivateMacroResponses
  */
 export const vGet1BleAppliancesByApplianceidPrivateMacrosResponse = vBlePrivateMacroResponses;
 
-export const vPost1BlePrivateMacrosByPrivatemacroidExecPath = v.object({
-  privatemacroid: v.string(),
-});
-
 /**
  * EmptyObject
  */
 export const vPost1BlePrivateMacrosByPrivatemacroidExecResponse = vEmptyObject;
-
-/**
- * DetectApplianceRequest
- */
-export const vPost1DetectapplianceBody = vDetectApplianceRequest;
 
 /**
  * List of air conditioner model and settings. Best match comes first.
@@ -1049,22 +924,9 @@ export const vPost1DetectapplianceResponse = vApplianceModelAndParams;
 export const vGet1DevicesResponse = vDeviceResponses;
 
 /**
- * UpdateRequest
- */
-export const vPost1DevicesByDeviceidBody = vDevicesUpdateRequest;
-
-export const vPost1DevicesByDeviceidPath = v.object({
-  deviceid: v.string(),
-});
-
-/**
  * Device
  */
 export const vPost1DevicesByDeviceidResponse = vDevice;
-
-export const vGet1DevicesByDeviceidAppliancesPath = v.object({
-  deviceid: v.string(),
-});
 
 /**
  * ApplianceResponses
@@ -1072,22 +934,9 @@ export const vGet1DevicesByDeviceidAppliancesPath = v.object({
 export const vGet1DevicesByDeviceidAppliancesResponse = vApplianceResponses;
 
 /**
- * DeleteRequest
- */
-export const vPost1DevicesByDeviceidDeleteBody = vDevicesDeleteRequest;
-
-export const vPost1DevicesByDeviceidDeletePath = v.object({
-  deviceid: v.string(),
-});
-
-/**
  * DeleteResponse
  */
 export const vPost1DevicesByDeviceidDeleteResponse = vDevicesDeleteResponse;
-
-export const vGet1DevicesByDeviceidElectricityTimeSeriesHourlyPath = v.object({
-  deviceid: v.string(),
-});
 
 /**
  * DeviceEnergyTimeSeries
@@ -1095,27 +944,9 @@ export const vGet1DevicesByDeviceidElectricityTimeSeriesHourlyPath = v.object({
 export const vGet1DevicesByDeviceidElectricityTimeSeriesHourlyResponse = vDeviceEnergyTimeSeries;
 
 /**
- * Humidity offset parameters.
- */
-export const vPost1DevicesByDeviceidHumidityOffsetBody = vHumidityOffsetParams;
-
-export const vPost1DevicesByDeviceidHumidityOffsetPath = v.object({
-  deviceid: v.string(),
-});
-
-/**
  * DeviceResponse
  */
 export const vPost1DevicesByDeviceidHumidityOffsetResponse = vDeviceResponse;
-
-/**
- * Temperature offset parameters.
- */
-export const vPost1DevicesByDeviceidTemperatureOffsetBody = vTemperatureOffsetParams;
-
-export const vPost1DevicesByDeviceidTemperatureOffsetPath = v.object({
-  deviceid: v.string(),
-});
 
 /**
  * DeviceResponse
@@ -1128,41 +959,14 @@ export const vPost1DevicesByDeviceidTemperatureOffsetResponse = vDeviceResponse;
 export const vGet1EchonetliteAppliancesResponse = vEchonetLiteApplianceResponse;
 
 /**
- * RefreshELPropertyRequest
- */
-export const vPost1EchonetliteAppliancesByApplianceidRefreshBody = vRefreshElPropertyRequest;
-
-export const vPost1EchonetliteAppliancesByApplianceidRefreshPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * EmptyObject
  */
 export const vPost1EchonetliteAppliancesByApplianceidRefreshResponse = vEmptyObject;
 
 /**
- * SetELPropertyRequest
- */
-export const vPost1EchonetliteAppliancesByApplianceidSetBody = vSetElPropertyRequest;
-
-export const vPost1EchonetliteAppliancesByApplianceidSetPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * EmptyObject
  */
 export const vPost1EchonetliteAppliancesByApplianceidSetResponse = vEmptyObject;
-
-/**
- * UpdateEVCCStateRequest
- */
-export const vPost1EvccAppliancesByApplianceidStateBody = vUpdateEvccStateRequest;
-
-export const vPost1EvccAppliancesByApplianceidStatePath = v.object({
-  applianceid: v.string(),
-});
 
 /**
  * EmptyObject
@@ -1175,50 +979,24 @@ export const vPost1EvccAppliancesByApplianceidStateResponse = vEmptyObject;
 export const vGet1HomesResponse = vHomeResponses;
 
 /**
- * HomeParams
- */
-export const vPost1HomesBody = vHomeParams;
-
-/**
  * HomeResponse
  */
 export const vPost1HomesResponse = vHomeResponse;
-
-/**
- * HomeParams
- */
-export const vPost1HomesByHomeidBody = vHomeParams;
-
-export const vPost1HomesByHomeidPath = v.object({
-  homeid: v.string(),
-});
 
 /**
  * HomeResponse
  */
 export const vPost1HomesByHomeidResponse = vHomeResponse;
 
-export const vPost1HomesByHomeidDeletePath = v.object({
-  homeid: v.string(),
-});
-
 /**
  * EmptyObject
  */
 export const vPost1HomesByHomeidDeleteResponse = vEmptyObject;
 
-export const vGet1HomesByHomeidDevicesPath = v.object({
-  homeid: v.string(),
-});
-
 /**
  * DeviceResponses
  */
 export const vGet1HomesByHomeidDevicesResponse = vDeviceResponses;
-
-export const vPost1HomesByHomeidInvitesPath = v.object({
-  homeid: v.string(),
-});
 
 /**
  * HomeInvite
@@ -1226,22 +1004,9 @@ export const vPost1HomesByHomeidInvitesPath = v.object({
 export const vPost1HomesByHomeidInvitesResponse = vHomeInvite;
 
 /**
- * HomeUserParams
- */
-export const vPost1HomesByHomeidKickBody = vHomeUserParams;
-
-export const vPost1HomesByHomeidKickPath = v.object({
-  homeid: v.string(),
-});
-
-/**
  * EmptyObject
  */
 export const vPost1HomesByHomeidKickResponse = vEmptyObject;
-
-export const vPost1HomesByHomeidLocationPath = v.object({
-  homeid: v.string(),
-});
 
 /**
  * HomeResponse
@@ -1249,22 +1014,9 @@ export const vPost1HomesByHomeidLocationPath = v.object({
 export const vPost1HomesByHomeidLocationResponse = vHomeResponse;
 
 /**
- * DeleteLocationRequest
- */
-export const vPost1HomesByHomeidLocationDeleteBody = vHomesDeleteLocationRequest;
-
-export const vPost1HomesByHomeidLocationDeletePath = v.object({
-  homeid: v.string(),
-});
-
-/**
  * DeleteLocationResponse
  */
 export const vPost1HomesByHomeidLocationDeleteResponse = vHomesDeleteLocationResponse;
-
-export const vPost1HomesByHomeidLocationStateUpdatePath = v.object({
-  homeid: v.string(),
-});
 
 /**
  * EmptyObject
@@ -1272,22 +1024,9 @@ export const vPost1HomesByHomeidLocationStateUpdatePath = v.object({
 export const vPost1HomesByHomeidLocationStateUpdateResponse = vEmptyObject;
 
 /**
- * HomeUserParams
- */
-export const vPost1HomesByHomeidOwnerBody = vHomeUserParams;
-
-export const vPost1HomesByHomeidOwnerPath = v.object({
-  homeid: v.string(),
-});
-
-/**
  * HomeResponse
  */
 export const vPost1HomesByHomeidOwnerResponse = vHomeResponse;
-
-export const vPost1HomesByHomeidPartPath = v.object({
-  homeid: v.string(),
-});
 
 /**
  * EmptyObject
@@ -1295,55 +1034,24 @@ export const vPost1HomesByHomeidPartPath = v.object({
 export const vPost1HomesByHomeidPartResponse = vEmptyObject;
 
 /**
- * TransferRequest
- */
-export const vPost1HomesByHomeidTransferByTohomeidBody = vTransferRequest;
-
-export const vPost1HomesByHomeidTransferByTohomeidPath = v.object({
-  homeid: v.string(),
-  tohomeid: v.string(),
-});
-
-/**
  * EmptyObject
  */
 export const vPost1HomesByHomeidTransferByTohomeidResponse = vEmptyObject;
-
-export const vGet1HomesByHomeidUsersPath = v.object({
-  homeid: v.string(),
-});
 
 /**
  * UserAndRoles
  */
 export const vGet1HomesByHomeidUsersResponse = vUserAndRoles;
 
-export const vGet1InvitesByInvitetokenPath = v.object({
-  invitetoken: v.string(),
-});
-
 /**
  * HomeInvite
  */
 export const vGet1InvitesByInvitetokenResponse = vHomeInvite;
 
-export const vPost1InvitesByInvitetokenPath = v.object({
-  invitetoken: v.string(),
-});
-
 /**
  * HomeResponse
  */
 export const vPost1InvitesByInvitetokenResponse = vHomeResponse;
-
-/**
- * Signal parameters.
- */
-export const vPost1SignalsBySignalidBody = vUpdateSignalParameters;
-
-export const vPost1SignalsBySignalidPath = v.object({
-  signalid: v.string(),
-});
 
 /**
  * Signal
@@ -1353,25 +1061,7 @@ export const vPost1SignalsBySignalidResponse = vSignal;
 /**
  * EmptyObject
  */
-export const vPost1SignalsBySignalidDeleteBody = vEmptyObject;
-
-export const vPost1SignalsBySignalidDeletePath = v.object({
-  signalid: v.string(),
-});
-
-/**
- * EmptyObject
- */
 export const vPost1SignalsBySignalidDeleteResponse = vEmptyObject;
-
-/**
- * EmptyObject
- */
-export const vPost1SignalsBySignalidSendBody = vEmptyObject;
-
-export const vPost1SignalsBySignalidSendPath = v.object({
-  signalid: v.string(),
-});
 
 /**
  * EmptyObject
@@ -1384,33 +1074,14 @@ export const vPost1SignalsBySignalidSendResponse = vEmptyObject;
 export const vGet1UsersMeResponse = vUserResponse;
 
 /**
- * UpdateProfileParam
- */
-export const vPost1UsersMeBody = vUpdateProfileParam;
-
-/**
  * User information.
  */
 export const vPost1UsersMeResponse = vUserResponse;
 
 /**
- * AirConParams_
- */
-export const vPost2AppliancesByApplianceidAirconSettingsBody = vAirConParams;
-
-export const vPost2AppliancesByApplianceidAirconSettingsPath = v.object({
-  applianceid: v.string(),
-});
-
-/**
  * ApplianceResponse
  */
 export const vPost2AppliancesByApplianceidAirconSettingsResponse = vApplianceResponse;
-
-/**
- * DetectApplianceV2Request
- */
-export const vPost2DetectapplianceBody = vAppliancesDetectApplianceV2Request;
 
 /**
  * DetectApplianceV2Response
