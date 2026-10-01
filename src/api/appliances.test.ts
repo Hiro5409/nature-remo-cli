@@ -5,7 +5,7 @@ import { createNatureRemo, NatureRemoError } from "../index.ts";
 import { server } from "../test/server.ts";
 
 describe("Nature Remo client", () => {
-  test("rejects a response missing required Nature Remo appliance fields", async () => {
+  test("rejects a response missing required appliance fields and names them", async () => {
     server.use(
       http.get("https://api.nature.global/1/appliances", () =>
         HttpResponse.json([
@@ -16,7 +16,10 @@ describe("Nature Remo client", () => {
 
     const appliances = createNatureRemo({ accessToken: "test-token" }).appliances;
 
-    await expect(appliances.list()).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    await expect(appliances.list()).rejects.toMatchObject({
+      code: "INVALID_RESPONSE",
+      message: expect.stringContaining("0.image"),
+    });
   });
 
   test("calls GET /1/appliances with bearer authentication", async () => {
