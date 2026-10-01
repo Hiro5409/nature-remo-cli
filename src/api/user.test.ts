@@ -1,21 +1,21 @@
-import { http, HttpResponse } from "msw/http";
 import { describe, expect, test } from "vite-plus/test";
 
 import { createNatureRemo } from "../index.ts";
 import { server } from "../test/server.ts";
+import { handleGet1UsersMe } from "../types/nature/msw.gen.ts";
 
 describe("authenticated User client", () => {
   test("returns the validated authenticated User", async () => {
     server.use(
-      http.get("https://api.nature.global/1/users/me", () =>
-        HttpResponse.json({
+      handleGet1UsersMe({
+        body: {
           country: "JP",
           distance_unit: "km",
           id: "user-1",
           nickname: "Owner",
           temp_unit: "c",
-        }),
-      ),
+        },
+      }),
     );
 
     const user = await createNatureRemo({ accessToken: "test-token" }).user.get();

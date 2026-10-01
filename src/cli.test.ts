@@ -1,8 +1,16 @@
-import { http, HttpResponse } from "msw/http";
+import { HttpResponse } from "msw/http";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 
 import { main } from "./cli.ts";
+import type { Appliance, Remo } from "./index.ts";
 import { server } from "./test/server.ts";
+import {
+  handleGet1Appliances,
+  handleGet1Devices,
+  handlePost1DevicesByDeviceidTemperatureOffset,
+  handlePost1SignalsBySignalidSend,
+  handlePost2AppliancesByApplianceidAirconSettings,
+} from "./types/nature/msw.gen.ts";
 
 const authMocks = vi.hoisted(() => ({
   cancelSymbol: Symbol("cancel"),
@@ -127,7 +135,7 @@ async function runCli(
 describe("nature-remo CLI", () => {
   test("sanitizes API-controlled text before writing it to the terminal", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
+      handleGet1Appliances(() =>
         HttpResponse.json({ message: "bad\u001B[31m\nspoof" }, { status: 500 }),
       ),
     );
@@ -141,9 +149,7 @@ describe("nature-remo CLI", () => {
 
   test("maps a rejected access token to a stable CLI error", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json({ message: "Unauthorized" }, { status: 401 }),
-      ),
+      handleGet1Appliances(() => HttpResponse.json({ message: "Unauthorized" }, { status: 401 })),
     );
 
     const result = await runCli(["appliance", "list", "--format", "json"], "invalid-token");
@@ -162,22 +168,14 @@ describe("nature-remo CLI", () => {
     { status: 403, code: "FORBIDDEN", exitCode: 3 },
     { status: 429, code: "RATE_LIMITED", exitCode: 4 },
   ])("reports HTTP $status as $code with exit $exitCode", async ({ status, code, exitCode }) => {
-    server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json({ message: "Rejected" }, { status }),
-      ),
-    );
+    server.use(handleGet1Appliances(() => HttpResponse.json({ message: "Rejected" }, { status })));
     const result = await runCli(["appliance", "list", "--format", "json"], "test-token");
     expect(result).toMatchObject({ exitCode, stdout: "" });
     expect(JSON.parse(result.stderr)).toMatchObject({ error: { code, exitCode } });
   });
 
   test("does not suggest retrying an invalid API response", async () => {
-    server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json({ unexpected: true }),
-      ),
-    );
+    server.use(handleGet1Appliances(() => HttpResponse.json({ unexpected: true })));
 
     const result = await runCli(["appliance", "list", "--format", "json"], "test-token");
 
@@ -192,7 +190,7 @@ describe("nature-remo CLI", () => {
 
   test("leaves a failed infrared request unretried and explains its uncertain outcome", async () => {
     const send = vi.fn(() => HttpResponse.error());
-    server.use(http.post("https://api.nature.global/1/signals/signal-1/send", send));
+    server.use(handlePost1SignalsBySignalidSend(send));
 
     const result = await runCli(
       ["signal", "send", "--signal-id", "signal-1", "--format", "json"],
@@ -200,7 +198,9 @@ describe("nature-remo CLI", () => {
     );
 
     expect(result).toMatchObject({ exitCode: 1, stdout: "" });
-    expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ params: { signalid: "signal-1" } }),
+    );
     expect(JSON.parse(result.stderr)).toMatchObject({
       error: {
         code: "API_ERROR",
@@ -272,17 +272,14 @@ describe("nature-remo CLI", () => {
   test("rejects an unexpected positional argument without sending a control request", async () => {
     const requests: string[] = [];
     server.use(
-      http.get("https://api.nature.global/1/appliances", ({ request }) => {
+      handleGet1Appliances(({ request }) => {
         requests.push(request.method);
         return HttpResponse.json([airconAppliance]);
       }),
-      http.post(
-        "https://api.nature.global/2/appliances/aircon-1/aircon_settings",
-        ({ request }) => {
-          requests.push(request.method);
-          return HttpResponse.json(airconAppliance);
-        },
-      ),
+      handlePost2AppliancesByApplianceidAirconSettings(({ request }) => {
+        requests.push(request.method);
+        return HttpResponse.json(airconAppliance);
+      }),
     );
 
     const result = await runCli(["aircon", "set", "26.5"], "test-token");
@@ -298,12 +295,11 @@ describe("nature-remo CLI", () => {
       settings: { ...airconAppliance.settings, temp: "26.5" },
     };
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([airconAppliance]),
-      ),
-      http.post("https://api.nature.global/2/appliances/aircon-1/aircon_settings", () =>
-        HttpResponse.json(updated),
-      ),
+      handleGet1Appliances({ body: [airconAppliance] }),
+      handlePost2AppliancesByApplianceidAirconSettings(({ params }) => {
+        expect(params.applianceid).toBe(airconAppliance.id);
+        return HttpResponse.json<Appliance>(updated);
+      }),
     );
 
     const result = await runCli(
@@ -332,14 +328,12 @@ describe("nature-remo CLI", () => {
   test("accepts a space-separated negative temperature offset", async () => {
     const requestBodies: string[] = [];
     server.use(
-      http.get("https://api.nature.global/1/devices", () => HttpResponse.json([remo])),
-      http.post(
-        "https://api.nature.global/1/devices/device-1/temperature_offset",
-        async ({ request }) => {
-          requestBodies.push(await request.text());
-          return HttpResponse.json({ ...remo, temperature_offset: -0.5 });
-        },
-      ),
+      handleGet1Devices({ body: [remo] }),
+      handlePost1DevicesByDeviceidTemperatureOffset(async ({ params, request }) => {
+        expect(params.deviceid).toBe(remo.id);
+        requestBodies.push(await request.text());
+        return HttpResponse.json<Remo>({ ...remo, temperature_offset: -0.5 });
+      }),
     );
 
     const result = await runCli(
@@ -403,10 +397,11 @@ describe("nature-remo CLI", () => {
 
   test("reports the resolved signal without claiming physical confirmation", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([signalAppliance]),
-      ),
-      http.post("https://api.nature.global/1/signals/signal-1/send", () => HttpResponse.json({})),
+      handleGet1Appliances({ body: [signalAppliance] }),
+      handlePost1SignalsBySignalidSend(({ params }) => {
+        expect(params.signalid).toBe(signal.id);
+        return HttpResponse.json({});
+      }),
     );
 
     const result = await runCli(
@@ -425,10 +420,11 @@ describe("nature-remo CLI", () => {
 
   test("shows the resolved signal in table output", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([signalAppliance]),
-      ),
-      http.post("https://api.nature.global/1/signals/signal-1/send", () => HttpResponse.json({})),
+      handleGet1Appliances({ body: [signalAppliance] }),
+      handlePost1SignalsBySignalidSend(({ params }) => {
+        expect(params.signalid).toBe(signal.id);
+        return HttpResponse.json({});
+      }),
     );
 
     const result = await runCli(["signal", "send", "--signal-name", "power"], "test-token");

@@ -1,13 +1,14 @@
-import { http, HttpResponse } from "msw/http";
+import { HttpResponse } from "msw/http";
 import { describe, expect, test } from "vite-plus/test";
 
-import { createNatureRemo, NatureRemoError } from "../index.ts";
+import { type Appliance, createNatureRemo, NatureRemoError } from "../index.ts";
 import { server } from "../test/server.ts";
+import { handleGet1Appliances } from "../types/nature/msw.gen.ts";
 
 describe("Nature Remo client", () => {
   test("rejects a response missing required appliance fields and names them", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
+      handleGet1Appliances(() =>
         HttpResponse.json([
           { id: "appliance-1", model: null, nickname: "Living room", type: "AC" },
         ]),
@@ -24,9 +25,9 @@ describe("Nature Remo client", () => {
 
   test("calls GET /1/appliances with bearer authentication", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", ({ request }) => {
+      handleGet1Appliances(({ request }) => {
         expect(request.headers.get("authorization")).toBe("Bearer test-token");
-        return HttpResponse.json([
+        return HttpResponse.json<Appliance[]>([
           {
             id: "appliance-1",
             image: "ico_ac_1",
@@ -62,11 +63,7 @@ describe("Nature Remo client", () => {
     { status: 403, code: "FORBIDDEN" },
     { status: 429, code: "RATE_LIMITED" },
   ])("preserves HTTP $status in the client error", async ({ status, code }) => {
-    server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json({ message: "Rejected" }, { status }),
-      ),
-    );
+    server.use(handleGet1Appliances(() => HttpResponse.json({ message: "Rejected" }, { status })));
     const remo = createNatureRemo({ accessToken: "test-token" });
 
     await expect(remo.appliances.list()).rejects.toMatchObject({ code, status });
@@ -74,9 +71,7 @@ describe("Nature Remo client", () => {
 
   test("classifies an invalid access token without exposing CLI concerns", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json({ message: "Unauthorized" }, { status: 401 }),
-      ),
+      handleGet1Appliances(() => HttpResponse.json({ message: "Unauthorized" }, { status: 401 })),
     );
     const appliances = createNatureRemo({ accessToken: "invalid-token" }).appliances;
 

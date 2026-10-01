@@ -1,8 +1,13 @@
-import { http, HttpResponse } from "msw/http";
+import { HttpResponse } from "msw/http";
 import { describe, expect, test } from "vite-plus/test";
 
-import { createNatureRemo } from "../index.ts";
+import { createNatureRemo, type HomeMember, type Remo } from "../index.ts";
 import { server } from "../test/server.ts";
+import {
+  handleGet1Homes,
+  handleGet1HomesByHomeidDevices,
+  handleGet1HomesByHomeidUsers,
+} from "../types/nature/msw.gen.ts";
 
 const home = {
   breaker_capacity: 30,
@@ -35,7 +40,7 @@ const remo = {
 
 describe("Home client", () => {
   test("lists homes and normalizes a null collection", async () => {
-    server.use(http.get("https://api.nature.global/1/homes", () => HttpResponse.json(null)));
+    server.use(handleGet1Homes({ body: null }));
     const homes = await createNatureRemo({ accessToken: "test-token" }).homes.list();
 
     expect(homes).toEqual([]);
@@ -43,10 +48,11 @@ describe("Home client", () => {
 
   test("resolves a Home name before listing its Remos", async () => {
     server.use(
-      http.get("https://api.nature.global/1/homes", () =>
-        HttpResponse.json([{ ...home, id: "home-2", name: "Office" }, home]),
-      ),
-      http.get("https://api.nature.global/1/homes/home-1/devices", () => HttpResponse.json([remo])),
+      handleGet1Homes({ body: [{ ...home, id: "home-2", name: "Office" }, home] }),
+      handleGet1HomesByHomeidDevices(({ params }) => {
+        expect(params.homeid).toBe(home.id);
+        return HttpResponse.json<Remo[]>([remo]);
+      }),
     );
 
     const remos = await createNatureRemo({ accessToken: "test-token" }).homes.listRemos({
@@ -59,7 +65,10 @@ describe("Home client", () => {
   test("lists Home Members directly by Home ID", async () => {
     const member = { role: "owner", user: { id: "user-1", nickname: "Owner" } };
     server.use(
-      http.get("https://api.nature.global/1/homes/home-1/users", () => HttpResponse.json([member])),
+      handleGet1HomesByHomeidUsers(({ params }) => {
+        expect(params.homeid).toBe("home-1");
+        return HttpResponse.json<HomeMember[]>([member]);
+      }),
     );
 
     const members = await createNatureRemo({ accessToken: "test-token" }).homes.listMembers({

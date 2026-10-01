@@ -180,7 +180,7 @@ The pre-commit hook formats and checks staged files, then scans them for secrets
 
 ## API schema
 
-The generated client is reproducible from the committed OpenAPI snapshot:
+The generated client and the MSW request handlers used by the tests are reproducible from the committed OpenAPI snapshot:
 
 ```sh
 vp run generate-types

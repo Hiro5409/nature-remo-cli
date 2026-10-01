@@ -12,5 +12,7 @@ export default defineConfig({
     { name: "@hey-api/client-fetch", throwOnError: true },
     { name: "valibot", requests: false },
     { name: "@hey-api/sdk", validator: { request: false, response: true } },
+    // Without baseUrl the handlers match any origin, so a request to the wrong host would pass.
+    { name: "msw", baseUrl: "https://api.nature.global" },
   ],
 });

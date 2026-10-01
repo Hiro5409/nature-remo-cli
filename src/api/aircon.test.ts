@@ -1,11 +1,15 @@
-import { http, HttpResponse } from "msw/http";
+import { HttpResponse } from "msw/http";
 import { describe, expect, test, vi } from "vite-plus/test";
 
 import { createNatureRemo } from "../index.ts";
 import { server } from "../test/server.ts";
+import {
+  handleGet1Appliances,
+  handlePost2AppliancesByApplianceidAirconSettings,
+} from "../types/nature/msw.gen.ts";
 import type { Appliance } from "./appliances.ts";
 
-const appliance: Appliance = {
+const appliance = {
   aircon: {
     range: {
       fixedButtons: ["power-off"],
@@ -36,11 +40,12 @@ const appliance: Appliance = {
   },
   signals: [],
   type: "AC",
-};
+} satisfies Appliance;
 
 describe("air conditioner client", () => {
   test("merges requested settings with recorded settings and uses the v2 endpoint", async () => {
     const send = vi.fn(async ({ request }: { request: Request }) => {
+      expect(new URL(request.url).pathname).toBe("/2/appliances/appliance-1/aircon_settings");
       const body = new URLSearchParams(await request.text());
       expect(Object.fromEntries(body)).toEqual({
         air_direction: "swing",
@@ -51,14 +56,14 @@ describe("air conditioner client", () => {
         temperature: "26.5",
         temperature_unit: "c",
       });
-      return HttpResponse.json({
+      return HttpResponse.json<Appliance>({
         ...appliance,
         settings: { ...appliance.settings, button: "", temp: "26.5" },
       });
     });
     server.use(
-      http.get("https://api.nature.global/1/appliances", () => HttpResponse.json([appliance])),
-      http.post("https://api.nature.global/2/appliances/appliance-1/aircon_settings", send),
+      handleGet1Appliances({ body: [appliance] }),
+      handlePost2AppliancesByApplianceidAirconSettings(send),
     );
 
     const result = await createNatureRemo({ accessToken: "test-token" }).aircons.set({
@@ -74,8 +79,8 @@ describe("air conditioner client", () => {
   test("rejects settings outside the range before sending infrared", async () => {
     const send = vi.fn(() => HttpResponse.json(appliance));
     server.use(
-      http.get("https://api.nature.global/1/appliances", () => HttpResponse.json([appliance])),
-      http.post("https://api.nature.global/2/appliances/appliance-1/aircon_settings", send),
+      handleGet1Appliances({ body: [appliance] }),
+      handlePost2AppliancesByApplianceidAirconSettings(send),
     );
     const aircons = createNatureRemo({ accessToken: "test-token" }).aircons;
 
@@ -92,14 +97,14 @@ describe("air conditioner client", () => {
     };
     const send = vi.fn(async ({ request }: { request: Request }) => {
       expect(new URLSearchParams(await request.text()).get("button")).toBe("power-off");
-      return HttpResponse.json({
+      return HttpResponse.json<Appliance>({
         ...withoutRanges,
         settings: { ...withoutRanges.settings, button: "power-off" },
       });
     });
     server.use(
-      http.get("https://api.nature.global/1/appliances", () => HttpResponse.json([withoutRanges])),
-      http.post("https://api.nature.global/2/appliances/appliance-1/aircon_settings", send),
+      handleGet1Appliances({ body: [withoutRanges] }),
+      handlePost2AppliancesByApplianceidAirconSettings(send),
     );
 
     const result = await createNatureRemo({ accessToken: "test-token" }).aircons.set({
@@ -107,14 +112,16 @@ describe("air conditioner client", () => {
     });
 
     expect(result.settings?.button).toBe("power-off");
-    expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ params: { applianceid: withoutRanges.id } }),
+    );
   });
 
   test("requires a selector when multiple air conditioners exist", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([appliance, { ...appliance, id: "appliance-2", nickname: "寝室" }]),
-      ),
+      handleGet1Appliances({
+        body: [appliance, { ...appliance, id: "appliance-2", nickname: "寝室" }],
+      }),
     );
     const aircons = createNatureRemo({ accessToken: "test-token" }).aircons;
 
@@ -125,12 +132,12 @@ describe("air conditioner client", () => {
   });
 
   test("selects an air conditioner by ID when multiple are configured", async () => {
-    const send = vi.fn(() => HttpResponse.json(appliance));
+    const send = vi.fn(() => HttpResponse.json<Appliance>(appliance));
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([{ ...appliance, id: "appliance-2", nickname: "寝室" }, appliance]),
-      ),
-      http.post("https://api.nature.global/2/appliances/appliance-1/aircon_settings", send),
+      handleGet1Appliances({
+        body: [{ ...appliance, id: "appliance-2", nickname: "寝室" }, appliance],
+      }),
+      handlePost2AppliancesByApplianceidAirconSettings(send),
     );
 
     await createNatureRemo({ accessToken: "test-token" }).aircons.set({
@@ -138,6 +145,8 @@ describe("air conditioner client", () => {
       target: "appliance-1",
     });
 
-    expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ params: { applianceid: "appliance-1" } }),
+    );
   });
 });

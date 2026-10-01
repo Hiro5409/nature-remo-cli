@@ -1,8 +1,9 @@
-import { http, HttpResponse } from "msw/http";
+import { HttpResponse } from "msw/http";
 import { describe, expect, test, vi } from "vite-plus/test";
 
 import { createNatureRemo } from "../index.ts";
 import { server } from "../test/server.ts";
+import { handleGet1Appliances, handlePost1SignalsBySignalidSend } from "../types/nature/msw.gen.ts";
 
 const signal = { id: "signal-1", image: "ico_io", name: "Power" };
 
@@ -17,9 +18,7 @@ const appliance = {
 
 describe("signal client", () => {
   test("lists learned signals for an appliance selected by name", async () => {
-    server.use(
-      http.get("https://api.nature.global/1/appliances", () => HttpResponse.json([appliance])),
-    );
+    server.use(handleGet1Appliances({ body: [appliance] }));
 
     const signals = await createNatureRemo({ accessToken: "test-token" }).signals.list({
       appliance: "living room",
@@ -29,11 +28,7 @@ describe("signal client", () => {
   });
 
   test("returns an empty list when an appliance has no learned signals", async () => {
-    server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([{ ...appliance, signals: null }]),
-      ),
-    );
+    server.use(handleGet1Appliances({ body: [{ ...appliance, signals: null }] }));
 
     const signals = await createNatureRemo({ accessToken: "test-token" }).signals.list();
 
@@ -45,10 +40,7 @@ describe("signal client", () => {
       expect(await request.text()).toBe("");
       return HttpResponse.json({});
     });
-    server.use(
-      http.get("https://api.nature.global/1/appliances", () => HttpResponse.json([appliance])),
-      http.post("https://api.nature.global/1/signals/signal-1/send", send),
-    );
+    server.use(handleGet1Appliances({ body: [appliance] }), handlePost1SignalsBySignalidSend(send));
 
     const sentSignal = await createNatureRemo({ accessToken: "test-token" }).signals.send({
       appliance: "Living room",
@@ -56,28 +48,32 @@ describe("signal client", () => {
     });
 
     expect(sentSignal).toEqual({ id: "signal-1", name: "Power" });
-    expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ params: { signalid: signal.id } }),
+    );
   });
 
   test("sends a signal ID directly without read access", async () => {
     const send = vi.fn(() => HttpResponse.json({}));
-    server.use(http.post("https://api.nature.global/1/signals/signal-1/send", send));
+    server.use(handlePost1SignalsBySignalidSend(send));
 
     const sentSignal = await createNatureRemo({ accessToken: "send-only-token" }).signals.send({
       id: "signal-1",
     });
 
     expect(sentSignal).toEqual({ id: "signal-1" });
-    expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ params: { signalid: "signal-1" } }),
+    );
   });
 
   test("does not send when a signal name is ambiguous", async () => {
     const send = vi.fn(() => HttpResponse.json({}));
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([{ ...appliance, signals: [signal, { ...signal, id: "signal-2" }] }]),
-      ),
-      http.post("https://api.nature.global/1/signals/:id/send", send),
+      handleGet1Appliances({
+        body: [{ ...appliance, signals: [signal, { ...signal, id: "signal-2" }] }],
+      }),
+      handlePost1SignalsBySignalidSend(send),
     );
 
     await expect(
@@ -88,9 +84,9 @@ describe("signal client", () => {
 
   test("requires an appliance selector when more than one appliance exists", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([appliance, { ...appliance, id: "appliance-2", nickname: "Bedroom" }]),
-      ),
+      handleGet1Appliances({
+        body: [appliance, { ...appliance, id: "appliance-2", nickname: "Bedroom" }],
+      }),
     );
 
     await expect(

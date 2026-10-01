@@ -1,8 +1,15 @@
 import { http, HttpResponse } from "msw/http";
 import { describe, expect, test, vi } from "vite-plus/test";
 
-import { createNatureRemo } from "../index.ts";
+import { type Appliance, createNatureRemo, type Remo, type RemoMetadata } from "../index.ts";
 import { server } from "../test/server.ts";
+import {
+  handleGet1Devices,
+  handleGet1DevicesByDeviceidAppliances,
+  handlePost1DevicesByDeviceid,
+  handlePost1DevicesByDeviceidHumidityOffset,
+  handlePost1DevicesByDeviceidTemperatureOffset,
+} from "../types/nature/msw.gen.ts";
 
 const remo = {
   created_at: "2026-09-02T00:00:00Z",
@@ -36,9 +43,9 @@ const remoMetadata = {
 describe("Remo client", () => {
   test("returns validated sensor readings", async () => {
     server.use(
-      http.get("https://api.nature.global/1/devices", ({ request }) => {
+      handleGet1Devices(({ request }) => {
         expect(request.headers.get("authorization")).toBe("Bearer test-token");
-        return HttpResponse.json([remo]);
+        return HttpResponse.json<Remo[]>([remo]);
       }),
     );
 
@@ -53,12 +60,11 @@ describe("Remo client", () => {
 
   test("renames a selected Remo", async () => {
     server.use(
-      http.get("https://api.nature.global/1/devices", () =>
-        HttpResponse.json([{ ...remo, id: "device-2", name: "Bedroom" }, remo]),
-      ),
-      http.post("https://api.nature.global/1/devices/device-1", async ({ request }) => {
+      handleGet1Devices({ body: [{ ...remo, id: "device-2", name: "Bedroom" }, remo] }),
+      handlePost1DevicesByDeviceid(async ({ params, request }) => {
+        expect(params.deviceid).toBe(remo.id);
         expect(new URLSearchParams(await request.text()).get("name")).toBe("Living room Remo");
-        return HttpResponse.json({ ...remoMetadata, name: "Living room Remo" });
+        return HttpResponse.json<RemoMetadata>({ ...remoMetadata, name: "Living room Remo" });
       }),
     );
 
@@ -85,14 +91,12 @@ describe("Remo client", () => {
 
   test("sets the temperature sensor offset", async () => {
     server.use(
-      http.get("https://api.nature.global/1/devices", () => HttpResponse.json([remo])),
-      http.post(
-        "https://api.nature.global/1/devices/device-1/temperature_offset",
-        async ({ request }) => {
-          expect(new URLSearchParams(await request.text()).get("offset")).toBe("-0.5");
-          return HttpResponse.json({ ...remo, temperature_offset: -0.5 });
-        },
-      ),
+      handleGet1Devices({ body: [remo] }),
+      handlePost1DevicesByDeviceidTemperatureOffset(async ({ params, request }) => {
+        expect(params.deviceid).toBe(remo.id);
+        expect(new URLSearchParams(await request.text()).get("offset")).toBe("-0.5");
+        return HttpResponse.json<Remo>({ ...remo, temperature_offset: -0.5 });
+      }),
     );
 
     const updated = await createNatureRemo({
@@ -104,14 +108,12 @@ describe("Remo client", () => {
 
   test("sets the humidity sensor offset", async () => {
     server.use(
-      http.get("https://api.nature.global/1/devices", () => HttpResponse.json([remo])),
-      http.post(
-        "https://api.nature.global/1/devices/device-1/humidity_offset",
-        async ({ request }) => {
-          expect(new URLSearchParams(await request.text()).get("offset")).toBe("2");
-          return HttpResponse.json({ ...remo, humidity_offset: 2 });
-        },
-      ),
+      handleGet1Devices({ body: [remo] }),
+      handlePost1DevicesByDeviceidHumidityOffset(async ({ params, request }) => {
+        expect(params.deviceid).toBe(remo.id);
+        expect(new URLSearchParams(await request.text()).get("offset")).toBe("2");
+        return HttpResponse.json<Remo>({ ...remo, humidity_offset: 2 });
+      }),
     );
 
     const updated = await createNatureRemo({ accessToken: "test-token" }).remos.setHumidityOffset({
@@ -131,9 +133,10 @@ describe("Remo client", () => {
       type: "AC",
     };
     server.use(
-      http.get("https://api.nature.global/1/devices/device-1/appliances", () =>
-        HttpResponse.json([appliance]),
-      ),
+      handleGet1DevicesByDeviceidAppliances(({ params }) => {
+        expect(params.deviceid).toBe("device-1");
+        return HttpResponse.json<Appliance[]>([appliance]);
+      }),
     );
 
     const appliances = await createNatureRemo({ accessToken: "test-token" }).remos.listAppliances({

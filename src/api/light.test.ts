@@ -1,8 +1,12 @@
-import { http, HttpResponse } from "msw/http";
+import { HttpResponse } from "msw/http";
 import { describe, expect, test, vi } from "vite-plus/test";
 
-import { createNatureRemo } from "../index.ts";
+import { createNatureRemo, type LightRecordedState } from "../index.ts";
 import { server } from "../test/server.ts";
+import {
+  handleGet1Appliances,
+  handlePost1AppliancesByApplianceidLight,
+} from "../types/nature/msw.gen.ts";
 
 const light = {
   id: "light-1",
@@ -20,9 +24,9 @@ const light = {
 describe("light client", () => {
   test("lists only appliances with light capability", async () => {
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([light, { ...light, id: "other-1", light: null, type: "IR" }]),
-      ),
+      handleGet1Appliances({
+        body: [light, { ...light, id: "other-1", light: null, type: "IR" }],
+      }),
     );
 
     const result = await createNatureRemo({ accessToken: "test-token" }).lights.list();
@@ -33,11 +37,15 @@ describe("light client", () => {
   test("presses an advertised button and returns recorded state", async () => {
     const send = vi.fn(async ({ request }: { request: Request }) => {
       expect(new URLSearchParams(await request.text()).get("button")).toBe("on");
-      return HttpResponse.json({ brightness: "100", last_button: "on", power: "on" });
+      return HttpResponse.json<LightRecordedState>({
+        brightness: "100",
+        last_button: "on",
+        power: "on",
+      });
     });
     server.use(
-      http.get("https://api.nature.global/1/appliances", () => HttpResponse.json([light])),
-      http.post("https://api.nature.global/1/appliances/light-1/light", send),
+      handleGet1Appliances({ body: [light] }),
+      handlePost1AppliancesByApplianceidLight(send),
     );
 
     const state = await createNatureRemo({ accessToken: "test-token" }).lights.press({
@@ -45,16 +53,16 @@ describe("light client", () => {
     });
 
     expect(state).toEqual({ brightness: "100", last_button: "on", power: "on" });
-    expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ params: { applianceid: light.id } }),
+    );
   });
 
   test("rejects a button when controls are unavailable", async () => {
     const press = vi.fn(() => HttpResponse.json(light.light.state));
     server.use(
-      http.get("https://api.nature.global/1/appliances", () =>
-        HttpResponse.json([{ ...light, light: { ...light.light, buttons: null } }]),
-      ),
-      http.post("https://api.nature.global/1/appliances/light-1/light", press),
+      handleGet1Appliances({ body: [{ ...light, light: { ...light.light, buttons: null } }] }),
+      handlePost1AppliancesByApplianceidLight(press),
     );
 
     await expect(
