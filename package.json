@@ -55,25 +55,26 @@
     "check:package": "node scripts/check-package.ts"
   },
   "dependencies": {
-    "@clack/prompts": "^1.7.0",
-    "@napi-rs/keyring": "2.0.0",
+    "@clack/prompts": "^1.8.1",
+    "@napi-rs/keyring": "2.1.0",
     "gunshi": "^0.37.3",
-    "string-width": "^8.2.2",
+    "string-width": "^8.3.0",
     "valibot": "^1.5.0"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.0.0-next-20260729142554",
-    "@types/node": "^24.10.0",
-    "knip": "^6.34.0",
-    "msw": "^2.15.0",
+    "@hey-api/openapi-ts": "0.0.0-next-20260824173136",
+    "@types/node": "^24.19.0",
+    "knip": "^6.38.0",
+    "msw": "^3.0.0",
     "publint": "^0.3.24",
     "typescript": "^7.0.2",
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0-rc.0",
-    "vite-plus": "1.0.0-rc.0"
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
+    "vite-plus": "1.0.0"
   },
   "overrides": {
-    "js-yaml": "5.4.1",
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0-rc.0"
+    "js-yaml": "5.4.2",
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
+    "vitest": "5.0.1"
   },
   "devEngines": {
     "packageManager": {

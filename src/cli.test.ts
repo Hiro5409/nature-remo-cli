@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw/http";
 import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 
 import { main } from "./cli.ts";

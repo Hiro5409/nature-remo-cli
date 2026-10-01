@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw/http";
 import { expect, test } from "vite-plus/test";
 
 import { server } from "../src/test/server.ts";
