@@ -222,6 +222,18 @@ Dependabot proposes one grouped pull request a week for the Bun dependencies and
 
 Dependency Review checks pull requests for vulnerable direct dependencies declared in `package.json` and for changed GitHub Actions. GitHub's dependency graph does not read `bun.lock`, so `bun audit` in the CI is the check that covers the locked dependency tree.
 
+## Releases
+
+[tagpr](https://github.com/Songmu/tagpr) keeps a release pull request open for the unreleased changes on `main` and lists the merged pull requests in its description. It proposes the next patch version; edit `version` in `package.json` on that pull request, or label it `tagpr:minor` or `tagpr:major`, to release a different one.
+
+Merging the release pull request tags the resulting commit on `main` and starts the Release workflow from that tag. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, publishes the tested artifact to npm through trusted publishing, and then creates the GitHub Release with the same artifact attached.
+
+To resume an interrupted release, run the workflow again from its tag. It skips the steps that already succeeded and stops if a published artifact differs from the tested one:
+
+```sh
+gh workflow run release.yml --ref v1.2.3
+```
+
 ## License
 
 [MIT](LICENSE). This project is not affiliated with Nature Inc.

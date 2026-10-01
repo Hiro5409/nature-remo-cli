@@ -1,0 +1,7 @@
+[tagpr]
+    releaseBranch = main
+    versionFile = package.json
+    vPrefix = true
+    changelog = false
+    # The Release workflow creates the GitHub Release after npm publication succeeds.
+    release = false
