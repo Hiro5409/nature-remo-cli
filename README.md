@@ -233,18 +233,25 @@ git tag -a v1.2.3 -m v1.2.3
 git push origin v1.2.3
 ```
 
-The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, publishes the tested artifact to npm through trusted publishing, and then creates the GitHub Release with the same artifact attached.
+The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, and [stages](https://docs.npmjs.com/staged-publishing/) the tested artifact on npm through trusted publishing, with provenance. A staged version cannot be installed. A maintainer reviews it in the package's **Staged Packages** tab on npmjs.com and approves it with 2FA, which publishes it.
 
-Publishing relies on two settings outside the repository:
-
-- The GitHub environment `npm`, whose deployment policy allows only `v*` tags.
-- An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `nature-remo-cli`, workflow filename `release.yml`, and environment `npm`, with `npm publish` among its allowed actions. The workflow publishes directly, so a trusted publisher that allows only `npm stage publish` cannot release.
-
-To resume an interrupted release, run the workflow again from its tag. It skips the steps that already succeeded and stops if a published artifact differs from the tested one:
+After approving the version, run the workflow again from its tag:
 
 ```sh
 gh workflow run release.yml --ref v1.2.3
 ```
+
+This run builds and tests the tagged commit again. The build is reproducible, so the run creates the GitHub Release with the artifact attached only when the version published on npm has the integrity of the artifact it tested.
+
+Publishing relies on three settings outside the repository:
+
+- The GitHub environment `npm`, whose deployment policy allows only `v*` tags.
+- An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `nature-remo-cli`, workflow filename `release.yml`, and environment `npm`, with `npm publish` and `npm dist-tag` left unchecked. `npm stage publish` is always allowed, so the workflow can stage a version but only a maintainer can publish it.
+- 2FA on the npm account of the maintainer who approves.
+
+The same command retries a failed run. Every run acts on what it finds: it stages the artifact while the version is not published on npm, and afterwards creates whichever of the GitHub Release and its attachment is missing. It stops when the published version or an existing attachment differs from the tested artifact, and when it cannot read npm or GitHub.
+
+The workflow cannot see staged versions. A run that starts before the approved version is published stages it again, and npm refuses because the version is already staged; approve the version, then run the workflow again. To replace a staged version, remove it with `npm stage reject` and run the workflow again.
 
 ## License
 
