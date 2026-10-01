@@ -233,7 +233,7 @@ git tag -a v1.2.3 -m v1.2.3
 git push origin v1.2.3
 ```
 
-The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, and [stages](https://docs.npmjs.com/staged-publishing/) the tested artifact on npm through trusted publishing, with provenance. A staged version cannot be installed. A maintainer reviews it in the package's **Staged Packages** tab on npmjs.com and approves it with 2FA, which publishes it.
+The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, and [stages](https://docs.npmjs.com/staged-publishing/) the tested artifact on npm through trusted publishing, with provenance. A staged version cannot be installed. A maintainer reviews it in the **Staged Packages** tab on npmjs.com and approves it with 2FA, which publishes it.
 
 After approving the version, run the workflow again from its tag:
 
