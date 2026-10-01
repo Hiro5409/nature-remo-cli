@@ -216,6 +216,12 @@ bun pm pack --destination "$package_dir"
 node scripts/check-package.ts "$package_dir"/nature-remo-cli-*.tgz
 ```
 
+## Dependency updates
+
+Dependabot proposes one grouped pull request a week for the Bun dependencies and one for the GitHub Actions, each limited to versions released at least seven days earlier. A maintainer reviews and merges them. Its Bun updater reads `bun.lock` lockfile version 1, so update the lockfile in place instead of regenerating it.
+
+Dependency Review checks pull requests for vulnerable direct dependencies declared in `package.json` and for changed GitHub Actions. GitHub's dependency graph does not read `bun.lock`, so `bun audit` in the CI is the check that covers the locked dependency tree.
+
 ## License
 
 [MIT](LICENSE). This project is not affiliated with Nature Inc.
