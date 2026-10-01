@@ -1,6 +1,6 @@
 {
   "name": "nature-remo-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A type-safe, agent-friendly CLI for the Nature Remo API.",
   "keywords": [
     "cli",
