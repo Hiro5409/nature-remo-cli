@@ -11,6 +11,7 @@ import { signalCommand } from "./commands/signal.ts";
 import { tvCommand } from "./commands/tv.ts";
 import { userCommand } from "./commands/user.ts";
 import { formatFromArgv, printError } from "./error-output.ts";
+import { invalidArgument } from "./errors.ts";
 
 const rootCommand = define({
   name: "nature-remo",
@@ -58,6 +59,14 @@ export async function main(argv: string[] = process.argv.slice(2)): Promise<numb
         return renderHeader(ctx);
       },
       renderValidationErrors: null,
+      onBeforeCommand: (ctx) => {
+        // Strict mode rejects unknown options only; no command takes positional arguments.
+        if (ctx.validationError || ctx.values.help || ctx.values.version) return;
+        const unexpected = [...ctx.positionals.slice(ctx.commandPath.length), ...ctx.rest];
+        if (unexpected.length > 0) {
+          throw invalidArgument(`Unexpected argument: ${unexpected.join(" ")}`);
+        }
+      },
       onAfterCommand: (ctx, result) => {
         if (ctx.values.help || ctx.values.version) return;
         if (result) console.log(result);

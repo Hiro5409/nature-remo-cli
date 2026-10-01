@@ -269,6 +269,29 @@ describe("nature-remo CLI", () => {
     expect(result.stderr).toContain("--temperature");
   });
 
+  test("rejects an unexpected positional argument without sending a control request", async () => {
+    const requests: string[] = [];
+    server.use(
+      http.get("https://api.nature.global/1/appliances", ({ request }) => {
+        requests.push(request.method);
+        return HttpResponse.json([airconAppliance]);
+      }),
+      http.post(
+        "https://api.nature.global/2/appliances/aircon-1/aircon_settings",
+        ({ request }) => {
+          requests.push(request.method);
+          return HttpResponse.json(airconAppliance);
+        },
+      ),
+    );
+
+    const result = await runCli(["aircon", "set", "26.5"], "test-token");
+
+    expect(result).toMatchObject({ exitCode: 2, stdout: "" });
+    expect(result.stderr).toBe("INVALID_ARGUMENT: Unexpected argument: 26.5");
+    expect(requests).toEqual([]);
+  });
+
   test("reports an accepted air conditioner request without claiming confirmation", async () => {
     const updated = {
       ...airconAppliance,
