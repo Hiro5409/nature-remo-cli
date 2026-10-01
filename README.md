@@ -220,7 +220,7 @@ node scripts/check-package.ts "$package_dir"/nature-remo-cli-*.tgz
 
 Dependabot proposes one grouped pull request a week for the Bun dependencies and one for the GitHub Actions, each limited to versions released at least seven days earlier. A maintainer reviews and merges them. Its Bun updater reads `bun.lock` lockfile version 1, so update the lockfile in place instead of regenerating it.
 
-Dependency Review checks pull requests for vulnerable direct dependencies declared in `package.json` and for changed GitHub Actions. GitHub's dependency graph does not read `bun.lock`, so `bun audit` in the CI is the check that covers the locked dependency tree.
+Dependency Review needs the repository's [dependency graph](https://docs.github.com/en/code-security/reference/supply-chain-security/dependency-graph-supported-package-ecosystems) to be enabled. It checks pull requests for vulnerable direct dependencies declared in `package.json` and for changed GitHub Actions. The dependency graph does not read `bun.lock`, so `bun audit` in the CI is the check that covers the locked dependency tree. Dependabot alerts cover only actions referenced by a semantic version, so the SHA-pinned actions receive Dependabot version updates but no alerts.
 
 ## Releases
 
@@ -232,6 +232,11 @@ git push origin v1.2.3
 ```
 
 The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, publishes the tested artifact to npm through trusted publishing, and then creates the GitHub Release with the same artifact attached.
+
+Publishing relies on two settings outside the repository:
+
+- The GitHub environment `npm`, whose deployment policy allows only `v*` tags.
+- An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `nature-remo-cli`, workflow filename `release.yml`, and environment `npm`, with `npm publish` among its allowed actions. The workflow publishes directly, so a trusted publisher that allows only `npm stage publish` cannot release.
 
 To resume an interrupted release, run the workflow again from its tag. It skips the steps that already succeeded and stops if a published artifact differs from the tested one:
 
