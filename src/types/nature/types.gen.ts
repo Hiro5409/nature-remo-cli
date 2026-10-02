@@ -314,6 +314,11 @@ export type CoreSensorValue = {
  */
 export type CoreSerialNumber = string;
 
+/**
+ * Time series of metrics. Each element is a 2-element tuple [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]
+ */
+export type CoreTsMetrics = Array<[number, number]>;
+
 export type CreateApplianceRequest = {
   device: string;
   /**
@@ -381,16 +386,16 @@ export type DeviceCommissioneeFabricResponse = {
 };
 
 export type DeviceEnergyTimeSeries = {
-  from_evcd?: Metrics;
-  from_fuel_cell?: Metrics;
-  from_grid?: Metrics;
-  from_solar_power?: Metrics;
-  from_storage_battery?: Metrics;
-  home_consumed?: Metrics;
-  to_evcc?: Metrics;
-  to_evcd?: Metrics;
-  to_grid?: Metrics;
-  to_storage_battery?: Metrics;
+  from_evcd?: CoreTsMetrics;
+  from_fuel_cell?: CoreTsMetrics;
+  from_grid?: CoreTsMetrics;
+  from_solar_power?: CoreTsMetrics;
+  from_storage_battery?: CoreTsMetrics;
+  home_consumed?: CoreTsMetrics;
+  to_evcc?: CoreTsMetrics;
+  to_evcd?: CoreTsMetrics;
+  to_grid?: CoreTsMetrics;
+  to_storage_battery?: CoreTsMetrics;
 };
 
 export type DeviceResponse = {
@@ -670,11 +675,6 @@ export type MemberResponse = {
   nickname: string;
   role: string;
 };
-
-/**
- * Time series of metrics. Each element is a 2-element tuple [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]
- */
-export type Metrics = Array<[number, number]>;
 
 export type MorninPlusDeviceResponse = {
   active: boolean;

@@ -755,6 +755,19 @@
         "description": "Serial number of the device.",
         "type": "string"
       },
+      "CoreTSMetrics": {
+        "description": "Time series of metrics. Each element is a 2-element tuple [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]",
+        "items": {
+          "description": "A 2-element tuple: [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "type": "array"
+      },
       "CreateApplianceRequest": {
         "properties": {
           "device": {
@@ -881,34 +894,34 @@
       "DeviceEnergyTimeSeries": {
         "properties": {
           "from_evcd": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "from_fuel_cell": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "from_grid": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "from_solar_power": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "from_storage_battery": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "home_consumed": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "to_evcc": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "to_evcd": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "to_grid": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           },
           "to_storage_battery": {
-            "$ref": "#/components/schemas/Metrics"
+            "$ref": "#/components/schemas/CoreTSMetrics"
           }
         },
         "type": "object"
@@ -1662,19 +1675,6 @@
         },
         "required": ["id", "nickname", "role", "location_state", "joined_at"],
         "type": "object"
-      },
-      "Metrics": {
-        "description": "Time series of metrics. Each element is a 2-element tuple [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]",
-        "items": {
-          "description": "A 2-element tuple: [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]",
-          "items": {
-            "type": "number"
-          },
-          "maxItems": 2,
-          "minItems": 2,
-          "type": "array"
-        },
-        "type": "array"
       },
       "MorninPlusDeviceResponse": {
         "properties": {

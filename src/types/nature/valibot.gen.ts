@@ -164,6 +164,11 @@ export const vCoreHomeBreakerCapacity = v.pipe(
  */
 export const vCoreSerialNumber = v.string();
 
+/**
+ * Time series of metrics. Each element is a 2-element tuple [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]
+ */
+export const vCoreTsMetrics = v.array(v.tuple([v.number(), v.number()]));
+
 export const vCreateApplianceRequest = v.object({
   device: v.string(),
   image: v.string(),
@@ -188,6 +193,19 @@ export const vDeviceCommissioneeFabricResponse = v.object({
   company_name: v.string(),
   label: v.string(),
   vendor_name: v.string(),
+});
+
+export const vDeviceEnergyTimeSeries = v.object({
+  from_evcd: v.optional(vCoreTsMetrics),
+  from_fuel_cell: v.optional(vCoreTsMetrics),
+  from_grid: v.optional(vCoreTsMetrics),
+  from_solar_power: v.optional(vCoreTsMetrics),
+  from_storage_battery: v.optional(vCoreTsMetrics),
+  home_consumed: v.optional(vCoreTsMetrics),
+  to_evcc: v.optional(vCoreTsMetrics),
+  to_evcd: v.optional(vCoreTsMetrics),
+  to_grid: v.optional(vCoreTsMetrics),
+  to_storage_battery: v.optional(vCoreTsMetrics),
 });
 
 export const vDevicesDeleteRequest = v.record(v.string(), v.unknown());
@@ -370,24 +388,6 @@ export const vLightResponse = v.object({
 export const vLinkText = v.object({
   link: v.string(),
   text: v.string(),
-});
-
-/**
- * Time series of metrics. Each element is a 2-element tuple [unix time in seconds, value in kWh]. e.g. [1700000000, 1.234]
- */
-export const vMetrics = v.array(v.tuple([v.number(), v.number()]));
-
-export const vDeviceEnergyTimeSeries = v.object({
-  from_evcd: v.optional(vMetrics),
-  from_fuel_cell: v.optional(vMetrics),
-  from_grid: v.optional(vMetrics),
-  from_solar_power: v.optional(vMetrics),
-  from_storage_battery: v.optional(vMetrics),
-  home_consumed: v.optional(vMetrics),
-  to_evcc: v.optional(vMetrics),
-  to_evcd: v.optional(vMetrics),
-  to_grid: v.optional(vMetrics),
-  to_storage_battery: v.optional(vMetrics),
 });
 
 export const vMorninPlusDeviceResponse = v.object({
