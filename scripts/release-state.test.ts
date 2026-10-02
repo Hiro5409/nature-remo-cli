@@ -50,6 +50,63 @@ test.each([
   });
 });
 
+test("waits for npm to serve a published version before reading GitHub", async () => {
+  let npmLookups = 0;
+  let releaseLookups = 0;
+  server.use(
+    http.get(npmUrl, () => {
+      npmLookups += 1;
+      return npmLookups < 3
+        ? new HttpResponse(null, { status: 404 })
+        : HttpResponse.json(published);
+    }),
+    http.get(releaseUrl, () => {
+      releaseLookups += 1;
+      return new HttpResponse(null, { status: 404 });
+    }),
+  );
+  await expect(
+    releaseState({ ...input, npmWait: { timeoutMs: 60_000, intervalMs: 1 } }),
+  ).resolves.toEqual({ npmPublished: true, releaseExists: false, assetExists: false });
+  expect(releaseLookups).toBe(1);
+});
+
+test("stops waiting when npm does not serve the version in time", async () => {
+  server.use(http.get(npmUrl, () => new HttpResponse(null, { status: 404 })));
+  await expect(
+    releaseState({ ...input, npmWait: { timeoutMs: 20, intervalMs: 5 } }),
+  ).rejects.toThrow("npm is not serving nature-remo-cli@0.1.0");
+});
+
+test("stops waiting when the npm lookup fails", async () => {
+  let npmLookups = 0;
+  server.use(
+    http.get(npmUrl, () => {
+      npmLookups += 1;
+      return new HttpResponse(null, { status: npmLookups < 2 ? 404 : 503 });
+    }),
+  );
+  await expect(
+    releaseState({ ...input, npmWait: { timeoutMs: 60_000, intervalMs: 1 } }),
+  ).rejects.toThrow("HTTP 503");
+  expect(npmLookups).toBe(2);
+});
+
+test("stops waiting when npm serves different contents", async () => {
+  let npmLookups = 0;
+  server.use(
+    http.get(npmUrl, () => {
+      npmLookups += 1;
+      return npmLookups < 2
+        ? new HttpResponse(null, { status: 404 })
+        : HttpResponse.json({ dist: { integrity: "different" } });
+    }),
+  );
+  await expect(
+    releaseState({ ...input, npmWait: { timeoutMs: 60_000, intervalMs: 1 } }),
+  ).rejects.toThrow("Published npm artifact differs");
+});
+
 test.each([403, 429, 500])("does not interpret HTTP %i as unpublished", async (status) => {
   server.use(http.get(npmUrl, () => new HttpResponse(null, { status })));
   await expect(releaseState(input)).rejects.toThrow(`HTTP ${status}`);

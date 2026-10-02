@@ -233,25 +233,22 @@ git tag -a v1.2.3 -m v1.2.3
 git push origin v1.2.3
 ```
 
-The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, and [stages](https://docs.npmjs.com/staged-publishing/) the tested artifact on npm through trusted publishing, with provenance. A staged version cannot be installed. A maintainer reviews it in the **Staged Packages** tab on npmjs.com and approves it with 2FA, which publishes it.
+The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, runs the CI on the tagged commit, and publishes the tested artifact to npm through trusted publishing, with provenance. npm [scans a new version](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) before serving it, so the workflow waits up to 30 minutes for the version to become visible. It creates the GitHub Release with the artifact attached only when the version published on npm has the integrity of the artifact it tested.
 
-After approving the version, run the workflow again from its tag:
+Publishing relies on two settings outside the repository:
+
+- The GitHub environment `npm`, whose deployment policy allows only `v*` tags.
+- An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `nature-remo-cli`, workflow filename `release.yml`, and environment `npm`, with `npm publish` allowed and `npm dist-tag` left unchecked.
+
+To retry a failed run, run the workflow again from its tag:
 
 ```sh
 gh workflow run release.yml --ref v1.2.3
 ```
 
-This run builds and tests the tagged commit again. The build is reproducible, so the run creates the GitHub Release with the artifact attached only when the version published on npm has the integrity of the artifact it tested.
+This run builds and tests the tagged commit again; the build is reproducible, so it tests the artifact an earlier run published. Every run acts on what it finds: it publishes the artifact while the version is not visible on npm, and afterwards creates whichever of the GitHub Release and its attachment is missing. It stops when the published version or an existing attachment differs from the tested artifact, and when it cannot read npm or GitHub.
 
-Publishing relies on three settings outside the repository:
-
-- The GitHub environment `npm`, whose deployment policy allows only `v*` tags.
-- An npm [trusted publisher](https://docs.npmjs.com/trusted-publishers/) for user `Hiro5409`, repository `nature-remo-cli`, workflow filename `release.yml`, and environment `npm`, with `npm publish` and `npm dist-tag` left unchecked. `npm stage publish` is always allowed, so the workflow can stage a version but only a maintainer can publish it.
-- 2FA on the npm account of the maintainer who approves.
-
-The same command retries a failed run. Every run acts on what it finds: it stages the artifact while the version is not published on npm, and afterwards creates whichever of the GitHub Release and its attachment is missing. It stops when the published version or an existing attachment differs from the tested artifact, and when it cannot read npm or GitHub.
-
-The workflow cannot see staged versions. A run that starts before the approved version is published stages it again, and npm refuses because the version is already staged; approve the version, then run the workflow again. To replace a staged version, remove it with `npm stage reject` and run the workflow again.
+A run fails when npm does not serve the version within 30 minutes. Run the workflow again once the version is visible on npm; a run that starts earlier attempts to publish the version again.
 
 ## License
 

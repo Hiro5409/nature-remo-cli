@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - "v*"
-  # Finishes a release from its tag once its staged version is approved on npm, or retries a failed run.
+  # Retries a failed release from its tag.
   workflow_dispatch:
 
 permissions: {}
@@ -45,7 +45,7 @@ jobs:
   publish:
     needs: check
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 40
     environment: npm
     permissions:
       contents: write
@@ -68,22 +68,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/release-state.ts "$RUNNER_TEMP"/package/*.tgz
-      # The trusted publisher's token cannot see staged versions, so staging one that already awaits approval fails here.
-      - name: Stage tested npm artifact
+      - name: Publish tested npm artifact
         if: steps.state.outputs.npmPublished == 'false'
         working-directory: ${{ runner.temp }}/package
-        run: |
-          npm stage publish ./*.tgz --provenance --access public
-          echo "::notice::Staged $GITHUB_REF_NAME on npm. Approve it there, then run this workflow again from the tag to create the GitHub Release."
+        run: npm publish ./*.tgz --provenance --access public
+      # npm scans a new version before serving it, so publishing returns before the version is visible.
+      - name: Wait for npm to serve the tested artifact
+        if: steps.state.outputs.npmPublished == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release-state.ts "$RUNNER_TEMP"/package/*.tgz --wait
       - name: Create GitHub Release
-        if: steps.state.outputs.npmPublished == 'true' && steps.state.outputs.releaseExists == 'false'
+        if: steps.state.outputs.releaseExists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
         run: gh release create "$TAG" --verify-tag --generate-notes
       - name: Attach tested npm artifact
-        if: steps.state.outputs.npmPublished == 'true' && steps.state.outputs.assetExists == 'false'
+        if: steps.state.outputs.assetExists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
