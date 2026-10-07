@@ -165,18 +165,18 @@ Use `--agent claude-code` for Claude Code. The npm package also includes the ski
 
 ## Development
 
-Install and [activate mise](https://mise.jdx.dev/getting-started.html). `mise.toml` pins Node.js, Bun, and Gitleaks and exposes the locally installed Vite+ commands. Keep its Bun version aligned with the Vite+ package-manager declaration in `package.json`:
+Install and [activate mise](https://mise.jdx.dev/getting-started.html). `mise.toml` pins Node.js, Bun, Gitleaks, and Lefthook and exposes the locally installed Vite+ commands. Keep its Bun version aligned with the Vite+ package-manager declaration in `package.json`:
 
 ```sh
 mise trust
 mise install
 bun install --frozen-lockfile
-vp hooks enable
+lefthook install
 vp pack
 bun link
 ```
 
-The pre-commit hook formats and checks staged files, then scans them for secrets with Gitleaks. CI uses the same Gitleaks version to scan Git history.
+[Lefthook](https://lefthook.dev/) runs the Git hooks defined in `lefthook.yml`. The pre-commit hook formats and checks staged files, then scans them for secrets with Gitleaks. The pre-push hook runs `bun audit --audit-level=high`, the same audit that the CI runs. CI uses the same Gitleaks version to scan Git history.
 
 ## API schema
 

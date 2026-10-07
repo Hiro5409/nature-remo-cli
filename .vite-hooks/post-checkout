@@ -1,2 +1,0 @@
-#!/usr/bin/env sh
-[ -d node_modules ] || mise exec -- bun install --frozen-lockfile
