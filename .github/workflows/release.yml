@@ -31,6 +31,10 @@ jobs:
             echo "$GITHUB_REF is not refs/tags/v$version, the tag for the version in package.json."
             exit 1
           fi
+          if [ "$(git cat-file -t "$GITHUB_REF")" != tag ]; then
+            echo "$GITHUB_REF is not an annotated tag, so it has no message for the release notes."
+            exit 1
+          fi
           if ! git merge-base --is-ancestor HEAD origin/main; then
             echo "The tagged commit is not on main."
             exit 1
@@ -111,4 +115,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" "$RUNNER_TEMP"/package/*.tgz --verify-tag --generate-notes
+        run: gh release create "$TAG" "$RUNNER_TEMP"/package/*.tgz --verify-tag --notes-from-tag --title "$TAG"

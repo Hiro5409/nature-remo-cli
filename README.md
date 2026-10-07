@@ -229,11 +229,13 @@ GitHub Actions pinned to commit SHAs can receive Dependabot version-update PRs, 
 A maintainer releases from `main`: commit the new `version` in `package.json`, push the commit to `main`, then push the annotated tag for that version:
 
 ```sh
-git tag -a v1.2.3 -m v1.2.3
+git tag -a v1.2.3
 git push origin v1.2.3
 ```
 
-The tag starts the Release workflow. The workflow verifies that the tag matches `package.json` and belongs to `main`, then runs the CI on the tagged commit. The CI packs the npm artifact once, and both publishing jobs download that tested artifact instead of building it again.
+`git tag -a` opens an editor for the tag message; list there, as Markdown bullets, the changes a user will notice. The message becomes the GitHub Release notes.
+
+The tag starts the Release workflow. The workflow verifies that the tag is annotated, matches `package.json`, and belongs to `main`, then runs the CI on the tagged commit. The CI packs the npm artifact once, and both publishing jobs download that tested artifact instead of building it again.
 
 The first job publishes the artifact to npm through trusted publishing, with provenance. npm [scans a new version](https://github.blog/changelog/2026-07-28-npm-publish-time-malware-scanning-and-dual-use-metadata/) before serving it, so the job waits up to 30 minutes for the version to become visible. The second job creates the GitHub Release only when the version published on npm has the integrity of the tested artifact. It attaches the artifact while the release is still a draft and then publishes it, because an immutable release locks its assets once it is published.
 
