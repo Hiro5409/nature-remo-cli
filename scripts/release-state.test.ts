@@ -26,11 +26,10 @@ const npmUrl = "https://registry.npmjs.org/nature-remo-cli/0.1.0";
 const releaseUrl = "https://api.github.com/repos/Hiro5409/nature-remo-cli/releases/tags/v0.1.0";
 
 test.each([
-  { npm: false, release: false, asset: false },
-  { npm: true, release: false, asset: false },
-  { npm: true, release: true, asset: false },
-  { npm: true, release: true, asset: true },
-])("resumes npm=$npm release=$release asset=$asset", async (state) => {
+  { npm: false, release: false },
+  { npm: true, release: false },
+  { npm: true, release: true },
+])("resumes npm=$npm release=$release", async (state) => {
   server.use(
     http.get(npmUrl, ({ request }) => {
       expect(request.headers.has("authorization")).toBe(false);
@@ -39,14 +38,13 @@ test.each([
     http.get(releaseUrl, ({ request }) => {
       expect(request.headers.get("authorization")).toBe("Bearer test-token");
       return state.release
-        ? HttpResponse.json({ draft: false, assets: state.asset ? [asset] : [] })
+        ? HttpResponse.json({ assets: [asset] })
         : new HttpResponse(null, { status: 404 });
     }),
   );
   await expect(releaseState(input)).resolves.toEqual({
     npmPublished: state.npm,
     releaseExists: state.release,
-    assetExists: state.asset,
   });
 });
 
@@ -67,7 +65,7 @@ test("waits for npm to serve a published version before reading GitHub", async (
   );
   await expect(
     releaseState({ ...input, npmWait: { timeoutMs: 60_000, intervalMs: 1 } }),
-  ).resolves.toEqual({ npmPublished: true, releaseExists: false, assetExists: false });
+  ).resolves.toEqual({ npmPublished: true, releaseExists: false });
   expect(releaseLookups).toBe(1);
 });
 
@@ -128,9 +126,22 @@ test("stops when the GitHub lookup fails after npm publication", async () => {
 test("does not overwrite a different existing release asset", async () => {
   server.use(
     http.get(npmUrl, () => HttpResponse.json(published)),
-    http.get(releaseUrl, () =>
-      HttpResponse.json({ draft: false, assets: [{ ...asset, digest: "different" }] }),
-    ),
+    http.get(releaseUrl, () => HttpResponse.json({ assets: [{ ...asset, digest: "different" }] })),
   );
   await expect(releaseState(input)).rejects.toThrow("Existing release asset differs");
+});
+
+test("stops when an existing release is missing the tested artifact", async () => {
+  server.use(
+    http.get(npmUrl, () => HttpResponse.json(published)),
+    http.get(releaseUrl, () =>
+      HttpResponse.json({
+        draft: false,
+        assets: [{ ...asset, name: "nature-remo-cli-0.0.9.tgz" }],
+      }),
+    ),
+  );
+  await expect(releaseState(input)).rejects.toThrow(
+    "Existing release is missing nature-remo-cli-0.1.0.tgz",
+  );
 });

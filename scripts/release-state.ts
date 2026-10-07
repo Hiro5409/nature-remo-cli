@@ -26,7 +26,7 @@ export async function releaseState(input: {
   bytes: Uint8Array;
   token: string;
   npmWait?: { timeoutMs: number; intervalMs: number };
-}): Promise<{ npmPublished: boolean; releaseExists: boolean; assetExists: boolean }> {
+}): Promise<{ npmPublished: boolean; releaseExists: boolean }> {
   const npmUrl = `https://registry.npmjs.org/${encodeURIComponent(input.name)}/${encodeURIComponent(input.version)}`;
   const deadline = Date.now() + (input.npmWait?.timeoutMs ?? 0);
   let published = await metadata(npmUrl);
@@ -53,24 +53,20 @@ export async function releaseState(input: {
     `https://api.github.com/repos/${input.repository}/releases/tags/v${encodeURIComponent(input.version)}`,
     input.token,
   );
-  let assetExists = false;
   if (release !== undefined) {
     record(release);
-    assert.equal(release.draft, false, "The existing release is a draft");
     assert.ok(Array.isArray(release.assets), "Invalid release assets");
+    let attached = false;
     for (const asset of release.assets) {
       record(asset);
       if (asset.name !== input.filename) continue;
       const digest = `sha256:${createHash("sha256").update(input.bytes).digest("hex")}`;
       assert.equal(asset.digest, digest, "Existing release asset differs from the tested artifact");
-      assetExists = true;
+      attached = true;
     }
+    assert.ok(attached, `Existing release is missing ${input.filename}`);
   }
-  return {
-    npmPublished: published !== undefined,
-    releaseExists: release !== undefined,
-    assetExists,
-  };
+  return { npmPublished: published !== undefined, releaseExists: release !== undefined };
 }
 
 if (import.meta.main) {
