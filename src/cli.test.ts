@@ -261,12 +261,15 @@ describe("nature-remo CLI", () => {
     expect(result.stdout).toContain("set");
   });
 
-  test("rejects a missing option value before authentication", async () => {
-    const result = await runCli(["aircon", "set", "--temperature"]);
+  test.each([
+    { args: ["aircon", "set", "--temperature"], option: "--temperature" },
+    { args: ["aircon", "list", "-f"], option: "--format" },
+  ])("rejects a missing $option value before authentication", async ({ args, option }) => {
+    const result = await runCli(args);
 
     expect(result).toMatchObject({ exitCode: 2, stdout: "" });
     expect(result.stderr).toContain("INVALID_ARGUMENT:");
-    expect(result.stderr).toContain("--temperature");
+    expect(result.stderr).toContain(option);
   });
 
   test("rejects an unexpected positional argument without sending a control request", async () => {

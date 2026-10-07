@@ -206,7 +206,7 @@ vp run generate-types
 vp run check
 ```
 
-The CI installs a packed artifact into clean macOS and Linux consumers on Node 24.11.0 and the latest Node 24 release. Package checks exercise the CLI, JSON errors, client imports and requests, and an isolated macOS Keychain credential. They do not contact Nature Remo or control physical appliances.
+The CI installs a packed artifact into clean macOS and Linux consumers on Node 24.11.0 and the latest Node 24 and Node 26 releases. Package checks exercise the CLI, JSON errors, client imports and requests, and an isolated macOS Keychain credential. They do not contact Nature Remo or control physical appliances.
 
 To check a local artifact:
 
